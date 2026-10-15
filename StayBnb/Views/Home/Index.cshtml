@@ -1,28 +1,70 @@
-﻿@{
+@model List<HostProperty>
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<html>
-    <head>
-        <style>
+<style>
+    #propContainer {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+    }
+    .propCard {
+        display: block;
+        background: #fff;
+        border: 1px solid #ebebeb;
+        border-radius: 12px;
+        overflow: hidden;
+        color: #222;
+        text-decoration: none;
+    }
+    .propCard:hover {
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+        color: #222;
+    }
+    .propAttr {
+        display: block;
+        padding: 4px 12px;
+        font-size: 0.9rem;
+    }
+    img.propAttr {
+        width: 100%;
+        height: 150px;
+        padding: 0;
+        object-fit: cover;
+        background: #ddd;
+    }
+    .loc {
+        font-weight: 600;
+        padding-top: 10px;
+    }
+    .price {
+        font-weight: 600;
+    }
+    .rating {
+        padding-bottom: 10px;
+        color: #555;
+    }
+</style>
 
-
-
-        </style>
-
-        <div id = "">
-
-        </div>
-    </head>
-
-    <body>
-
-
-
-    </body>
-
-    <footer>
-
-    </footer>
-
-</html>
+<div id="propContainer">
+    @foreach (var home in Model)
+    {
+        var image = home.Images.FirstOrDefault();
+        <a asp-controller="Bookings" asp-action="Create" asp-route-id="@home.Id" class="propCard">
+            <img src="@(image?.ImageUrl ?? "")" alt="@home.Title" class="propAttr" />
+            <div class="loc propAttr">@home.Title - @home.City</div>
+            <div class="price propAttr">@home.PricePerNight.ToString("C") / night</div>
+            <div class="rating propAttr">
+                @if (home.Reviews.Any())
+                {
+                    @home.Reviews.Average(r => r.Rating).ToString("0.0")
+                }
+                else
+                {
+                    <text>No reviews yet</text>
+                }
+            </div>
+        </a>
+    }
+</div>

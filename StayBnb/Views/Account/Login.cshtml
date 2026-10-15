@@ -1,0 +1,31 @@
+@model LoginViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - StayBnb</title>
+    <partial name="_AuthStyles" />
+</head>
+<body>
+    <div class="container">
+        <div class="form">
+            <header>Login</header>
+            <form asp-action="Login" method="post">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div class="error" asp-validation-summary="All"></div>
+                <input asp-for="Email" type="email" placeholder="Enter your email">
+                <input asp-for="Password" placeholder="Enter your password">
+                <input type="submit" class="button" value="Login">
+            </form>
+            <div class="signup">
+                Don't have an account?
+                <a asp-action="Register">Signup</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

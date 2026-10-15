@@ -34,4 +34,6 @@ namespace StayBnb.Models
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public CheckInProcess? CheckInProcess { get; set; }
     }
+
+    
 }

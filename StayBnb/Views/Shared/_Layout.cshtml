@@ -1,49 +1,178 @@
-﻿<!DOCTYPE html>
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using StayBnb.Data
+@using StayBnb.Models
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext Db
+@{
+    // Logged-in user (null when logged out) and the name shown in the menu
+    var user = await UserManager.GetUserAsync(User);
+    var userName = user == null ? null
+        : string.IsNullOrWhiteSpace(user.FirstName) ? user.UserName : $"{user.FirstName} {user.LastName}";
+    var roles = user == null ? new List<string>() : await UserManager.GetRolesAsync(user);
+    var isAdmin = roles.Contains(Roles.Admin) || roles.Contains(Roles.SuperAdmin);
+    var isHost = roles.Contains(Roles.Host);
+
+    // Search box options and the currently selected values
+    var cities = await Db.HostProperties.Where(p => p.IsActive).Select(p => p.City).Distinct().OrderBy(c => c).ToListAsync();
+    var prices = new[] { 1000, 2000, 3000, 5000, 10000 };
+    var selectedCity = Context.Request.Query["city"].ToString();
+    var selectedPrice = Context.Request.Query["maxPrice"].ToString();
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - StayBnb</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/StayBnb.styles.css" asp-append-version="true" />
+    <style>
+        body { margin: 0; font-family: system-ui, sans-serif; color: #222; }
+        a { color: inherit; text-decoration: none; }
+        main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+        /* Top bar: logo, search, links, user menu */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 40px;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+        }
+        header > a:first-child { color: #ff385c; font-weight: 700; font-size: 1.4rem; }
+
+        /* Search pill */
+        form.search {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 999px;
+            padding: 4px 6px 4px 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+        form.search select, form.search input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font: inherit;
+            padding: 0 12px;
+        }
+        form.search select { border-right: 1px solid #ddd; }
+        form.search input { width: 9rem; }
+        form.search button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: #ff385c;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        /* Links on the right */
+        nav { display: flex; align-items: center; gap: 8px; }
+        nav > a { padding: 8px 14px; border-radius: 999px; font-size: 0.9rem; }
+        nav > a:hover { background: #f5f5f5; }
+
+        /* User menu (opens and closes without JavaScript) */
+        details { position: relative; }
+        summary {
+            list-style: none;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary:hover { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); }
+        details div {
+            position: absolute;
+            right: 0;
+            top: 120%;
+            min-width: 180px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 8px 0;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+        details div a, details div button {
+            display: block;
+            width: 100%;
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+        details div a:hover, details div button:hover { background: #f5f5f5; }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">StayBnb</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+        <a asp-controller="Home" asp-action="Index">staybnb</a>
+
+        <form class="search" asp-controller="Home" asp-action="Index" method="get">
+            <select name="city">
+                <option value="">Anywhere</option>
+                @foreach (var city in cities)
+                {
+                    <option value="@city" selected="@(city == selectedCity)">@city</option>
+                }
+            </select>
+            <select name="maxPrice">
+                <option value="">Any price</option>
+                @foreach (var price in prices)
+                {
+                    <option value="@price" selected="@(price.ToString() == selectedPrice)">Up to $@price / night</option>
+                }
+            </select>
+            <input name="q" value="@Context.Request.Query["q"]" placeholder="Find Property" />
+            <button>&#128269;</button>
+        </form>
+
+        <nav>
+            @if (isAdmin)
+            {
+                <a asp-controller="Admin" asp-action="Dashboard">Admin Dashboard</a>
+            }
+            else if (isHost)
+            {
+                <a asp-controller="Host" asp-action="Dashboard">Host Dashboard</a>
+            }
+            else
+            {
+                <a asp-controller="HostApplication" asp-action="Status">Host Application Status</a>
+                <a asp-controller="HostApplication" asp-action="Apply">Become a Host</a>
+            }
+
+            <details>
+                <summary>&#9776; @userName</summary>
+                <div>
+                    @if (user != null)
+                    {
+                        <a asp-controller="Bookings" asp-action="Index">My Bookings</a>
+                        <a asp-controller="Wishlist" asp-action="Index">Wishlist</a>
+                        <a asp-controller="Messages" asp-action="Inbox">Messages</a>
+                        <a asp-controller="Notifications" asp-action="Index">Notifications</a>
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button>Log out</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login">Log in</a>
+                        <a asp-controller="Account" asp-action="Register">Sign up</a>
+                    }
                 </div>
-            </div>
+            </details>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - StayBnb - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    <main>
+        @RenderBody()
+    </main>
 </body>
 </html>

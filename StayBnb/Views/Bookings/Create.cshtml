@@ -1,0 +1,23 @@
+@model HostProperty
+@{
+    ViewData["Title"] = "Book " + Model.Title;
+    var image = Model.Images.FirstOrDefault();
+}
+
+
+
+<div>
+<h2>@Model.Title</h2>
+<p>@Model.City - @Model.Address</p>
+@if (image != null)
+{
+    <img src="@image.ImageUrl" alt="@Model.Title" style="max-width:400px; border-radius:12px;" />
+}
+<p>@Model.Description</p>
+<p><strong>@Model.PricePerNight.ToString("C")</strong> / night</p>
+</div>
+
+<form>
+    <
+
+</form>

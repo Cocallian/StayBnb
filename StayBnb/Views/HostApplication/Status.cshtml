@@ -1,0 +1,8 @@
+@model HostApplication
+@{
+    ViewData["Title"] = "Host Application Status";
+}
+
+<h2>Host Application Status</h2>
+<p>Status: <strong>@Model.Status</strong></p>
+<p>Applied on @Model.AppliedAt.ToLocalTime().ToString("d")</p>
