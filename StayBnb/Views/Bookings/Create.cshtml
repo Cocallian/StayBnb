@@ -4,20 +4,79 @@
     var image = Model.Images.FirstOrDefault();
 }
 
+<style>
+    .property { display: flex; justify-content: center; }
+    .property .card {
+        width: 100%;
+        max-width: 520px;
+        background: #fff;
+        border-radius: 7px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+    .property .card img { width: 100%; height: 300px; object-fit: cover; display: block; }
+    .property .body { padding: 2rem; }
+    .property h2 { font-size: 2rem; font-weight: 500; margin: 0 0 .3rem; }
+    .property .location { color: #666; margin: 0 0 1rem; }
+    .property .description { line-height: 1.5; margin: 0 0 1.2rem; }
+    .property .price { font-size: 1.3rem; margin-bottom: 1.2rem; }
+    .property .price small { color: #666; font-size: 1rem; }
+    .property h4 { margin: 1.2rem 0 .6rem; font-weight: 500; }
+    .property .amenities { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+    .property .amenities li { background: #f5f5f5; border-radius: 999px; padding: .35rem .9rem; font-size: 14px; }
+    .property .fees { width: 100%; font-size: 15px; border-collapse: collapse; }
+    .property .fees td { padding: .25rem 0; }
+    .property .fees td:last-child { text-align: right; }
+    .property a.button {
+        display: block;
+        height: 60px;
+        line-height: 60px;
+        text-align: center;
+        color: #fff;
+        background: #FF385C;
+        font-size: 1.2rem;
+        font-weight: 500;
+        letter-spacing: 1px;
+        border-radius: 6px;
+        margin-top: 1.7rem;
+    }
+    .property a.button:hover { text-decoration: none; opacity: .92; }
+</style>
 
+<div class="property">
+    <div class="card">
+        @if (image != null)
+        {
+            <img src="@image.ImageUrl" alt="@Model.Title" />
+        }
+        <div class="body">
+            <h2>@Model.Title</h2>
+            <p class="location">@Model.City - @Model.Address</p>
+            <p class="description">@Model.Description</p>
+            <div class="price"><strong>@Model.PricePerNight.ToString("C")</strong> <small>/ night</small></div>
 
-<div>
-<h2>@Model.Title</h2>
-<p>@Model.City - @Model.Address</p>
-@if (image != null)
-{
-    <img src="@image.ImageUrl" alt="@Model.Title" style="max-width:400px; border-radius:12px;" />
-}
-<p>@Model.Description</p>
-<p><strong>@Model.PricePerNight.ToString("C")</strong> / night</p>
+            <h4>Amenities</h4>
+            @if (Model.Amenities.Any())
+            {
+                <ul class="amenities">
+                    @foreach (var amenity in Model.Amenities)
+                    {
+                        <li>@amenity.Name</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="location">No amenities listed.</p>
+            }
+
+            <h4>Fees</h4>
+            <table class="fees">
+                <tr><td>Cleaning fee</td><td>@Model.CleaningFee.ToString("C")</td></tr>
+                <tr><td>Service fee</td><td>@Model.ServiceFee.ToString("C")</td></tr>
+            </table>
+
+            <a class="button" asp-controller="Bookings" asp-action="CheckIn" asp-route-id="@Model.Id">Book Now</a>
+        </div>
+    </div>
 </div>
-
-<form>
-    <
-
-</form>

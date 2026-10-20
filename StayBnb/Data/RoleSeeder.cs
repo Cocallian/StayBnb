@@ -18,7 +18,7 @@ namespace StayBnb.Data
     ///   admin@staybnb.com      / Password@123
     ///   host1@staybnb.com .. host3@staybnb.com   / Password@123
     ///   guest1@staybnb.com .. guest10@staybnb.com / Password@123
-    /// </summary>
+    /// </summary>  
     public static class RoleSeeder
     {
         private const string DefaultPassword = "Password@123";

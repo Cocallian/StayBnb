@@ -1,0 +1,29 @@
+@model List<Booking>
+@{
+    ViewData["Title"] = "My bookings";
+}
+
+<h2>My bookings</h2>
+
+@if (!Model.Any())
+{
+    <p>You have no bookings yet.</p>
+}
+else
+{
+    <table style="width:100%; border-collapse:collapse;">
+        <tr style="text-align:left;">
+            <th>Property</th><th>Dates</th><th>Guests</th><th>Total</th><th>Status</th>
+        </tr>
+        @foreach (var booking in Model)
+        {
+            <tr>
+                <td>@booking.Property?.Title</td>
+                <td>@booking.CheckInDate.ToString("d MMM yyyy") - @booking.CheckOutDate.ToString("d MMM yyyy")</td>
+                <td>@booking.NumberOfGuests</td>
+                <td>@booking.TotalPrice.ToString("C")</td>
+                <td>@booking.Status</td>
+            </tr>
+        }
+    </table>
+}
