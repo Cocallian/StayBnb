@@ -1,0 +1,53 @@
+@inject Microsoft.AspNetCore.Identity.UserManager<StayBnb.Models.ApplicationUser> UserManager
+@using StayBnb.Models
+@model List<StayBnb.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Users";
+}
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Profile Picture</th>
+            <th>Properties</th>
+            <th>Bookings</th>
+            <th>Reviews</th>
+            <th>Created at</th>
+            <th>Change role</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var n in Model)
+        {
+            var roles = string.Join(", ", await UserManager.GetRolesAsync(n));
+            <tr>
+                <td>@($"{n.FirstName} {n.LastName}".Trim())</td>
+                <td>@roles</td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(n.ProfilePictureUrl))
+                    {
+                        <img src="@n.ProfilePictureUrl" alt="@n.FirstName" width="40" height="40" style="border-radius: 50%; object-fit: cover;" />
+                    }
+                </td>
+                <td>@n.Properties.Count</td>
+                <td>@n.Bookings.Count</td>
+                <td>@n.Reviews.Count</td>
+                <td>@n.CreatedAt.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <form asp-controller="Admin" asp-action="Promote" method="post">
+                        <input type="hidden" name="id" value="@n.Id" />
+                        <span>@n.FirstName</span>
+                        <select name="role">
+                            @foreach (var role in new[] { Roles.Guest, Roles.Host, Roles.Admin, Roles.SuperAdmin })
+                            {
+                                <option value="@role" selected="@roles.Contains(role)">@role</option>
+                            }
+                        </select>
+                        <button type="submit">Promote</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

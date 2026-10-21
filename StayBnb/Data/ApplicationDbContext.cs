@@ -76,6 +76,7 @@ namespace StayBnb.Data
             {
                 e.HasOne(a => a.ApplicationUser).WithMany().HasForeignKey(a => a.ApplicationUserId).OnDelete(DeleteBehavior.Restrict);
                 e.HasOne(a => a.Property).WithMany().HasForeignKey(a => a.PropertyId).OnDelete(DeleteBehavior.Restrict);
+                e.HasMany(a => a.Amenities).WithMany();
             });
 
             b.Entity<GuestCheckIn>().HasOne(g => g.CheckInProcess).WithMany().HasForeignKey(g => g.CheckInProcessId).OnDelete(DeleteBehavior.Restrict);

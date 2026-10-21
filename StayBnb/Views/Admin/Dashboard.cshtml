@@ -1,5 +1,55 @@
+@model StayBnb.Models.AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Dashboard Overview";
 }
 
-<h2>Admin Dashboard</h2>
+<div class="cards">
+    <div class="card">
+        <div class="label">Total Users</div>
+        <div class="value">@Model.TotalUsers</div>
+        <div class="note">Active Users</div>
+    </div>
+    <div class="card">
+        <div class="label">Pending Host Apps</div>
+        <div class="value warn">@Model.PendingHostApplications</div>
+        <div class="note">Require review</div>
+    </div>
+    <div class="card">
+        <div class="label">Active Properties</div>
+        <div class="value">@Model.ActiveProperties</div>
+        <div class="note">Listings available</div>
+    </div>
+    <div class="card">
+        <div class="label">Platform Revenue</div>
+        <div class="value">R @Model.PlatformRevenue.ToString("N0")</div>
+        <div class="note">Total earnings</div>
+    </div>
+    <div class="card">
+        <div class="label">Total Bookings</div>
+        <div class="value">@Model.TotalBookings</div>
+        <div class="note">@Model.PendingBookings pending</div>
+    </div>
+    <div class="card">
+        <div class="label">Approved Hosts</div>
+        <div class="value">@Model.ApprovedHosts</div>
+        <div class="note">Active hosts</div>
+    </div>
+</div>
+
+<h3>Recent Activity</h3>
+<table>
+    <thead>
+        <tr><th>User</th><th>Action</th><th>Date</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.RecentActivity)
+        {
+            <tr>
+                <td>@($"{log.User?.FirstName} {log.User?.LastName}".Trim())</td>
+                <td>@log.Action</td>
+                <td>@log.CreatedAt.ToString("yyyy-MM-dd")</td>
+                <td><span class="status">Active</span></td>
+            </tr>
+        }
+    </tbody>
+</table>

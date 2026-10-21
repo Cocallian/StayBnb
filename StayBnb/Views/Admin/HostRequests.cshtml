@@ -1,0 +1,76 @@
+@model List<StayBnb.Models.HostApplication>
+@{
+    ViewData["Title"] = "Host Requests";
+}
+
+<style>
+    .property-table { background: #fafafa; border: 1px solid #eee; }
+    .property-table th, .property-table td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+    .property-table th { width: 140px; text-transform: none; }
+    .actions { display: flex; gap: 8px; margin-top: 10px; }
+    .actions button { border: none; border-radius: 8px; padding: 8px 14px; color: #fff; font: inherit; cursor: pointer; }
+    .actions .accept { background: #198754; }
+    .actions .deny { background: #ff385c; }
+    .property-image { width: 160px; height: 110px; object-fit: cover; border-radius: 8px; }
+</style>
+
+<table>
+    <thead>
+        <tr>
+            <th>Applicant</th>
+            <th>Property</th>
+            <th>Date</th>
+            <th>Document</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@($"{a.ApplicationUser?.FirstName} {a.ApplicationUser?.LastName}".Trim())</td>
+                <td>
+                    <table class="property-table">
+                        <tr>
+                            <th>Image</th>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(a.ImageUrl))
+                                {
+                                    <img class="property-image" src="@a.ImageUrl" alt="@a.Title" />
+                                }
+                            </td>
+                        </tr>
+                        <tr><th>Title</th><td>@a.Title</td></tr>
+                        <tr><th>Description</th><td>@a.Description</td></tr>
+                        <tr><th>Address</th><td>@a.Address</td></tr>
+                        <tr><th>City</th><td>@a.City</td></tr>
+                        <tr><th>Price per night</th><td>R @a.PricePerNight.ToString("N2")</td></tr>
+                        <tr><th>Cleaning fee</th><td>R @a.CleaningFee.ToString("N2")</td></tr>
+                        <tr><th>Service fee</th><td>R @a.ServiceFee.ToString("N2")</td></tr>
+                        <tr><th>Amenities</th><td>@string.Join(", ", a.Amenities.Select(x => x.Name))</td></tr>
+                    </table>
+                    <div class="actions">
+                        <form asp-controller="Admin" asp-action="Approve" method="post">
+                            <input type="hidden" name="id" value="@a.Id" />
+                            <button type="submit" class="accept">Accept and Promote</button>
+                        </form>
+                        <form asp-controller="Admin" asp-action="Deny" method="post">
+                            <input type="hidden" name="id" value="@a.Id" />
+                            <button type="submit" class="deny">Deny</button>
+                        </form>
+                    </div>
+                </td>
+                <td>@a.AppliedAt.ToString("yyyy-MM-dd")</td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(a.DocumentUrl))
+                    {
+                        <a href="@a.DocumentUrl" download>Download document</a>
+                    }
+                    else
+                    {
+                        <span>No document</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,21 @@
+@model List<StayBnb.Models.ActivityLog>
+@{
+    ViewData["Title"] = "Activity Log";
+}
+
+<table>
+    <thead>
+        <tr><th>User</th><th>Action</th><th>Date</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@($"{log.User?.FirstName} {log.User?.LastName}".Trim())</td>
+                <td>@log.Action</td>
+                <td>@log.CreatedAt.ToString("yyyy-MM-dd")</td>
+                <td><span class="status">Active</span></td>
+            </tr>
+        }
+    </tbody>
+</table>

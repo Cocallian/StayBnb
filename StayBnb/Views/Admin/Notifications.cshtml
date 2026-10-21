@@ -1,0 +1,30 @@
+@model List<StayBnb.Models.Notification>
+@inject Microsoft.AspNetCore.Identity.UserManager<StayBnb.Models.ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>For</th>
+            <th>Role</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var n in Model)
+        {
+            var roles = n.User == null ? "" : string.Join(", ", await UserManager.GetRolesAsync(n.User));
+            <tr>
+                <td>@($"{n.User?.FirstName} {n.User?.LastName}".Trim())</td>
+                <td>@roles</td>
+                <td>@n.Title</td>
+                <td>@n.Type</td>
+                <td>@n.CreatedAt.ToString("yyyy-MM-dd")</td>
+            </tr>
+        }
+    </tbody>
+</table>

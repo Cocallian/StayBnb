@@ -1,0 +1,29 @@
+﻿@model List<StayBnb.Models.Message>
+@{
+	ViewData["Title"] = "Messages";
+}
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>From</th>
+            <th>To</th>
+            <th>Message</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            
+            <tr>
+                <td>@m.Sender?.FirstName</td>
+                <td>@m.Receiver?.FirstName</td>
+                <td>@m.Content</td>
+                <td>@m.Timestamp</td>
+            </tr>
+        }
+    </tbody>
+</table>

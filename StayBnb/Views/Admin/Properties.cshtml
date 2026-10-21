@@ -1,0 +1,42 @@
+@model List<StayBnb.Models.HostProperty>
+@{
+    ViewData["Title"] = "Properties";
+}
+
+<style>
+    .property-thumb { width: 90px; height: 60px; object-fit: cover; border-radius: 6px; }
+</style>
+
+<table>
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Host</th>
+            <th>Location</th>
+            <th>Price per night</th>
+            <th>Reviews</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            var image = p.Images.FirstOrDefault()?.ImageUrl;
+            <tr>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(image))
+                    {
+                        <img class="property-thumb" src="@image" alt="@p.Title" />
+                    }
+                </td>
+                <td>@p.Title</td>
+                <td>@($"{p.Host?.FirstName} {p.Host?.LastName}".Trim())</td>
+                <td>@p.Address, @p.City</td>
+                <td>R @p.PricePerNight.ToString("N2")</td>
+                <td>@p.Reviews.Count</td>
+                <td>@(p.IsActive ? "Active" : "Inactive")</td>
+            </tr>
+        }
+    </tbody>
+</table>

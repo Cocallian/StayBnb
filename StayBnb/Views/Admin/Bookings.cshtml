@@ -1,0 +1,30 @@
+@model List<StayBnb.Models.Booking>
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Guest</th>
+            <th>Host</th>
+            <th>Property</th>
+            <th>Check In Date</th>
+            <th>Check Out Date</th>
+            <th>Amount Due</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>@($"{book.Guest?.FirstName} {book.Guest?.LastName}".Trim())</td>
+                <td>@($"{book.Property?.Host?.FirstName} {book.Property?.Host?.LastName}".Trim())</td>
+                <td>@book.Property?.Title</td>
+                <td>@book.CheckInDate.ToString("yyyy-MM-dd")</td>
+                <td>@book.CheckOutDate.ToString("yyyy-MM-dd")</td>
+                <td>R @book.TotalPrice.ToString("N2")</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -221,6 +221,40 @@ namespace StayBnb.Data
                 AppliedAt = DateTime.UtcNow.AddDays(-1)
             });
 
+            // Two more pending applications with the full form details (image and document), not yet turned into properties.
+            db.HostApplications.Add(new HostApplication
+            {
+                ApplicationUserId = guests[8].Id,
+                Status = ApplicationStatus.Pending,
+                AppliedAt = DateTime.UtcNow.AddDays(-2),
+                Title = "Hout Bay Beach Cottage",
+                Description = "Cosy two-bedroom cottage a short walk from Hout Bay beach, with a sunny patio and a braai area.",
+                Address = "8 Harbour Road, Hout Bay",
+                City = "Cape Town",
+                PricePerNight = 1450,
+                CleaningFee = 200,
+                ServiceFee = 120,
+                ImageUrl = "https://picsum.photos/seed/hout-bay-beach-cottage-1/900/600",
+                DocumentUrl = "/uploads/documents/48c16f94-9d8d-4a7a-9660-d60b044d1217.pdf",
+                Amenities = amenities.Take(4).ToList()
+            });
+            db.HostApplications.Add(new HostApplication
+            {
+                ApplicationUserId = guests[9].Id,
+                Status = ApplicationStatus.Pending,
+                AppliedAt = DateTime.UtcNow.AddDays(-3),
+                Title = "Drakensberg Mountain Cabin",
+                Description = "Quiet timber cabin with a fireplace and mountain views, ideal for hiking weekends.",
+                Address = "22 Champagne Valley Road, Winterton",
+                City = "Drakensberg",
+                PricePerNight = 1100,
+                CleaningFee = 180,
+                ServiceFee = 90,
+                ImageUrl = "https://picsum.photos/seed/drakensberg-mountain-cabin-1/900/600",
+                DocumentUrl = "/uploads/documents/e75a0a08-9f0f-49cb-9df2-fc50ef6b2c02.pdf",
+                Amenities = amenities.Skip(2).Take(4).ToList()
+            });
+
             // Notifications that go with the applications.
             foreach (var host in hosts)
             {

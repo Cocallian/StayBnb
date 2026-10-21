@@ -1,6 +1,145 @@
+@model HostApplication
 @{
     ViewData["Title"] = "Become a Host";
+    var amenities = (List<Amenity>)ViewBag.Amenities;
+    var selected = (List<int>)ViewBag.SelectedAmenities;
 }
 
-<h2>Become a Host</h2>
-<p>You have not applied to be a host yet.</p>
+<style>
+    .apply { display: flex; justify-content: center; }
+    .apply .card {
+        width: 100%;
+        max-width: 560px;
+        background: #fff;
+        border-radius: 7px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
+    .apply .body { padding: 2rem; }
+    .apply header { font-size: 2rem; font-weight: 500; text-align: center; margin-bottom: .5rem; }
+    .apply .intro { text-align: center; color: #666; margin: 0 0 1.5rem; }
+    .apply label { display: block; font-size: 14px; color: #444; margin-bottom: .3rem; }
+    .apply input:not([type=submit]):not([type=hidden]),
+    .apply select,
+    .apply textarea {
+        width: 100%;
+        padding: 0 15px;
+        font-size: 17px;
+        margin-bottom: 1.3rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        outline: none;
+        background: #fff;
+        font-family: inherit;
+    }
+    .apply input:not([type=submit]):not([type=hidden]) { height: 60px; }
+    .apply input[type=file] { padding: 15px; height: auto; }
+    .apply textarea { padding: 15px; height: 140px; resize: vertical; }
+    .apply select[multiple] { padding: 8px; height: 200px; }
+    .apply input:focus, .apply select:focus, .apply textarea:focus { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); }
+    .apply .row { display: flex; gap: 1rem; }
+    .apply .row > div { flex: 1; }
+    .apply input.button {
+        height: 60px;
+        width: 100%;
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        background: #FF385C;
+        font-size: 1.2rem;
+        font-weight: 500;
+        letter-spacing: 1px;
+        margin-top: 1rem;
+        cursor: pointer;
+    }
+    .apply .error, .apply .field-validation-error { color: #c00; font-size: 14px; }
+    .apply .field-validation-error { display: block; margin: -1rem 0 1rem; }
+    .apply .note { font-size: 13px; color: #666; margin: -.8rem 0 1rem; }
+</style>
+
+<div class="apply">
+    <div class="card">
+        <div class="body">
+            <header>Become a Host</header>
+            <p class="intro">Tell us about your property. An admin will review your application.</p>
+
+            <form asp-action="Apply" method="post" enctype="multipart/form-data">
+                <div class="error" asp-validation-summary="ModelOnly"></div>
+
+                <label asp-for="Title"></label>
+                <input asp-for="Title" placeholder="e.g. Cozy Forest Cabin" />
+                <span asp-validation-for="Title" class="field-validation-error"></span>
+
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" placeholder="Describe your property, the surroundings and what guests can expect"></textarea>
+                <span asp-validation-for="Description" class="field-validation-error"></span>
+
+                <div class="row">
+                    <div>
+                        <label asp-for="City"></label>
+                        <input asp-for="City" placeholder="e.g. Durban" />
+                        <span asp-validation-for="City" class="field-validation-error"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Address"></label>
+                        <input asp-for="Address" placeholder="Street address" />
+                        <span asp-validation-for="Address" class="field-validation-error"></span>
+                    </div>
+                </div>
+
+                <label asp-for="PricePerNight"></label>
+                <input asp-for="PricePerNight" type="number" step="0.01" min="1" />
+                <span asp-validation-for="PricePerNight" class="field-validation-error"></span>
+
+                <div class="row">
+                    <div>
+                        <label asp-for="CleaningFee"></label>
+                        <input asp-for="CleaningFee" type="number" step="0.01" min="0" />
+                        <span asp-validation-for="CleaningFee" class="field-validation-error"></span>
+                    </div>
+                    <div>
+                        <label asp-for="ServiceFee"></label>
+                        <input asp-for="ServiceFee" type="number" step="0.01" min="0" />
+                        <span asp-validation-for="ServiceFee" class="field-validation-error"></span>
+                    </div>
+                </div>
+
+                <label for="amenityIds">Amenities</label>
+                <select id="amenityIds" name="amenityIds" multiple>
+                    @foreach (var amenity in amenities)
+                    {
+                        <option value="@amenity.Id" selected="@selected.Contains(amenity.Id)">@amenity.Name</option>
+                    }
+                </select>
+                <div class="note">Hold Ctrl (Cmd on Mac) to select more than one.</div>
+
+                <label for="image">Property image</label>
+                <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                <div class="note">JPG, PNG or WEBP, up to 5 MB.</div>
+                @if (ViewData.ModelState.TryGetValue("image", out var imageErrors))
+                {
+                    foreach (var error in imageErrors.Errors)
+                    {
+                        <span class="field-validation-error">@error.ErrorMessage</span>
+                    }
+                }
+
+                <label for="document">Supporting document</label>
+                <input id="document" name="document" type="file" accept=".pdf" />
+                <div class="note">PDF, up to 5 MB.</div>
+                @if (ViewData.ModelState.TryGetValue("document", out var documentErrors))
+                {
+                    foreach (var error in documentErrors.Errors)
+                    {
+                        <span class="field-validation-error">@error.ErrorMessage</span>
+                    }
+                }
+
+                <input type="submit" class="button" value="Submit application" />
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
