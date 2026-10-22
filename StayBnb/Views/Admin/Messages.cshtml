@@ -1,9 +1,7 @@
-﻿@model List<StayBnb.Models.Message>
+@model List<StayBnb.Models.Message>
 @{
-	ViewData["Title"] = "Messages";
+    ViewData["Title"] = "Messages";
 }
-
-
 
 <table>
     <thead>
@@ -17,12 +15,11 @@
     <tbody>
         @foreach (var m in Model)
         {
-            
             <tr>
-                <td>@m.Sender?.FirstName</td>
-                <td>@m.Receiver?.FirstName</td>
+                <td>@($"{m.Sender?.FirstName} {m.Sender?.LastName}".Trim())</td>
+                <td>@($"{m.Receiver?.FirstName} {m.Receiver?.LastName}".Trim())</td>
                 <td>@m.Content</td>
-                <td>@m.Timestamp</td>
+                <td>@m.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
             </tr>
         }
     </tbody>

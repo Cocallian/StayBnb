@@ -112,6 +112,7 @@ namespace StayBnb.Controllers
             application.Amenities = await _context.Amenities.Where(a => amenityIds.Contains(a.Id)).ToListAsync();
 
             _context.HostApplications.Add(application);
+            _context.LogActivity(userId, "HostApplicationSubmitted", ActivityType.HostApplication);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Status));

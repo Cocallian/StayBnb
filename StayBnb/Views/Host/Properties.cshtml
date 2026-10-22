@@ -1,0 +1,44 @@
+@model List<StayBnb.Models.HostProperty>
+@{
+    ViewData["Title"] = "My Properties";
+}
+
+<div class="page-head">
+    <div>
+        <h3>Your listings</h3>
+        <p>@Model.Count @(Model.Count == 1 ? "property" : "properties")</p>
+    </div>
+    <a class="btn" asp-action="AddProperty">+ Add Property</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty">
+        <strong>No properties yet</strong>
+        Add your first listing to start receiving bookings.
+    </div>
+}
+else
+{
+    <div class="grid">
+        @foreach (var p in Model)
+        {
+            var image = p.Images.FirstOrDefault()?.ImageUrl;
+            var rating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : 0;
+            <div class="prop-card">
+                <div class="img" style="@(string.IsNullOrWhiteSpace(image) ? "" : $"background-image:url('{image}')")">
+                    <span class="status @(p.IsActive ? "ok" : "bad")">@(p.IsActive ? "Active" : "Inactive")</span>
+                </div>
+                <div class="body">
+                    <h4>@p.Title</h4>
+                    <div class="muted">@p.Address, @p.City</div>
+                    <div class="price">R @p.PricePerNight.ToString("N2") <span class="muted">/ night</span></div>
+                </div>
+                <div class="foot">
+                    <span><span class="stars">&#9733;</span> @(p.Reviews.Any() ? rating.ToString("0.0") : "New") (@p.Reviews.Count)</span>
+                    <a asp-action="EditProperty" asp-route-id="@p.Id">Edit</a>
+                </div>
+            </div>
+        }
+    </div>
+}

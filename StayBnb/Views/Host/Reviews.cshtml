@@ -1,0 +1,39 @@
+@model List<StayBnb.Models.Review>
+@{
+    ViewData["Title"] = "Reviews";
+    var average = Model.Any() ? Model.Average(r => r.Rating) : 0;
+    string Stars(int n) => new string('★', n) + new string('☆', 5 - n);
+}
+
+<div class="summary">
+    <div class="big">@average.ToString("0.0")</div>
+    <div>
+        <div class="stars">@Stars((int)Math.Round(average))</div>
+        <div class="muted">Based on @Model.Count @(Model.Count == 1 ? "review" : "reviews")</div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty list-card" style="display:block">
+        <strong>No reviews yet</strong>
+        Guest reviews appear here after their stay.
+    </div>
+}
+@foreach (var r in Model)
+{
+    var name = $"{r.Reviewer?.FirstName} {r.Reviewer?.LastName}".Trim();
+    <div class="list-card" style="align-items:flex-start">
+        <div class="who">
+            <div class="avatar">@(string.IsNullOrEmpty(name) ? "?" : name.Substring(0, 1).ToUpper())</div>
+            <div>
+                <strong>@name</strong>
+                <div class="muted">@r.Property?.Title &middot; @r.CreatedAt.ToString("d MMM yyyy")</div>
+            </div>
+        </div>
+        <div style="flex:1; min-width:240px">
+            <div class="stars">@Stars(r.Rating)</div>
+            <p style="margin:6px 0 0">@r.Comment</p>
+        </div>
+    </div>
+}

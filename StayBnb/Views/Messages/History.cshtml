@@ -1,0 +1,82 @@
+@using System.Security.Claims
+@model List<StayBnb.Models.Message>
+@{
+    ViewData["Title"] = "History";
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<style>
+    .history
+    {
+        margin-bottom: 28px;
+        padding: 16px 20px;
+        border: 1px solid #d0d0d6;
+        border-radius: 12px;
+        background: #f5f5f7;
+    }
+    .history h3
+    {
+        margin: 0 0 10px;
+        font-size: 1rem;
+    }
+    .receiver-table
+    {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .receiver-table tr.received td
+    {
+        background: #e3e3e8;
+    }
+    .receiver-table th, .receiver-table td
+    {
+        padding: 10px 14px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        font-size: 0.9rem;
+    }
+    .receiver-table th
+    {
+        color: #777;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+    .receiver-table th.date, .receiver-table td.date
+    {
+        width: 150px;
+        white-space: nowrap;
+    }
+</style>
+
+<h2>History</h2>
+@if (!Model.Any())
+{
+    <p>You have no message history.</p>
+}
+@foreach (var group in Model.GroupBy(m => m.SenderId == userId ? m.ReceiverId : m.SenderId))
+{
+    var first = group.First();
+    var other = first.SenderId == userId ? first.Receiver : first.Sender;
+    <div class="history">
+        <h3>@($"{other?.FirstName} {other?.LastName}".Trim())</h3>
+        <table class="receiver-table">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>Message</th>
+                    <th class="date">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in group)
+                {
+                    <tr class="@(m.SenderId == userId ? "" : "received")">
+                        <td>@(m.SenderId == userId ? "You" : m.Sender?.FirstName)</td>
+                        <td>@m.Content</td>
+                        <td class="date">@m.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

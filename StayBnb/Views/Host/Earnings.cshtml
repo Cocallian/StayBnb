@@ -1,0 +1,63 @@
+@using StayBnb.Models
+@model List<Booking>
+@{
+    ViewData["Title"] = "Earnings";
+    var paid = Model.Where(b => b.Payment!.Status == PaymentStatus.Paid).Sum(b => b.Payment!.Amount);
+    var pending = Model.Where(b => b.Payment!.Status == PaymentStatus.Pending).Sum(b => b.Payment!.Amount);
+    var refunded = Model.Where(b => b.Payment!.Status == PaymentStatus.Refunded).Sum(b => b.Payment!.Amount);
+
+    // Colour class for a payment's status badge
+    string StatusClass(PaymentStatus status) => status switch
+    {
+        PaymentStatus.Paid => "ok",
+        PaymentStatus.Refunded => "bad",
+        _ => ""
+    };
+}
+
+<div class="cards">
+    <div class="card">
+        <div class="label">Total Earned</div>
+        <div class="value">R @paid.ToString("N0")</div>
+        <div class="note">Paid payments</div>
+    </div>
+    <div class="card">
+        <div class="label">Pending Payments</div>
+        <div class="value warn">R @pending.ToString("N0")</div>
+        <div class="note">Awaiting payment</div>
+    </div>
+    <div class="card">
+        <div class="label">Refunded</div>
+        <div class="value">R @refunded.ToString("N0")</div>
+        <div class="note">Returned to guests</div>
+    </div>
+</div>
+
+<h3>Payment history</h3>
+@if (!Model.Any())
+{
+    <div class="empty list-card" style="display:block">
+        <strong>No payments yet</strong>
+        Earnings show up here once guests book your properties.
+    </div>
+}
+else
+{
+    <table>
+        <thead>
+            <tr><th>Guest</th><th>Property</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var b in Model)
+            {
+                <tr>
+                    <td>@($"{b.Guest?.FirstName} {b.Guest?.LastName}".Trim())</td>
+                    <td>@b.Property?.Title</td>
+                    <td>@b.Payment!.CreatedAt.ToString("d MMM yyyy")</td>
+                    <td>R @b.Payment.Amount.ToString("N2")</td>
+                    <td><span class="status @StatusClass(b.Payment.Status)">@b.Payment.Status</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

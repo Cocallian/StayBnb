@@ -1,0 +1,95 @@
+@model List<StayBnb.Models.Notification>
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<style>
+    .notifications
+    {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .notifications th, .notifications td
+    {
+        padding: 12px 14px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        font-size: 0.9rem;
+    }
+    .notifications th
+    {
+        color: #777;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+    .notifications tr.unread td
+    {
+        background: #fff5f7;
+        font-weight: 600;
+    }
+    .notifications button, .mark-all
+    {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 6px 12px;
+        background: #fff;
+        font: inherit;
+        cursor: pointer;
+    }
+    .notifications button:hover, .mark-all:hover
+    {
+        background: #f5f5f5;
+    }
+    .notifications-header
+    {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+</style>
+
+<div class="notifications-header">
+    <h2>Notifications</h2>
+    @if (Model.Any(n => !n.IsRead))
+    {
+        <form asp-controller="Notifications" asp-action="MarkAllRead" method="post">
+            <button type="submit" class="mark-all">Mark all as read</button>
+        </form>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <p>You have no notifications.</p>
+}
+else
+{
+    <table class="notifications">
+        <thead>
+            <tr>
+                <th>Notification</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var n in Model)
+            {
+                <tr class="@(n.IsRead ? "" : "unread")">
+                    <td>@n.Title</td>
+                    <td>@n.Type</td>
+                    <td>@n.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                        @if (!n.IsRead)
+                        {
+                            <form asp-controller="Notifications" asp-action="MarkRead" asp-route-id="@n.Id" method="post">
+                                <button type="submit">Mark as read</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

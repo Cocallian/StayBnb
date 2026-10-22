@@ -1,0 +1,53 @@
+@{
+    Layout = "_Layout";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    string Active(string action) => string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+}
+
+<style>
+    .messages-page
+    {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+    }
+    .messages-page aside
+    {
+        width: 220px;
+        flex-shrink: 0;
+    }
+    .messages-page aside a
+    {
+        display: block;
+        padding: 10px 14px;
+        margin-bottom: 6px;
+        border-radius: 10px;
+    }
+    .messages-page aside a:hover
+    {
+        background: #f5f5f5;
+    }
+    .messages-page aside a.active
+    {
+        background: #ffe8ec;
+        color: #ff385c;
+        font-weight: 600;
+    }
+    .messages-page .messages
+    {
+        flex: 1;
+        min-width: 0;
+    }
+</style>
+
+<div class="messages-page">
+    <aside>
+        <a class="@Active("Inbox")" asp-controller="Messages" asp-action="Inbox">Inbox</a>
+        <a class="@Active("Compose")" asp-controller="Messages" asp-action="Compose">Compose</a>
+        <a class="@Active("History")" asp-controller="Messages" asp-action="History">History</a>
+    </aside>
+
+    <div class="messages">
+        @RenderBody()
+    </div>
+</div>

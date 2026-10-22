@@ -29,7 +29,7 @@ namespace StayBnb.Controllers
                 .Include(p => p.Images)
                 .Include(p => p.Amenities)
                 .Include(p => p.Reviews)
-                .FirstOrDefaultAsync(p => p.Id == id && p.IsActive);
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (property == null) return NotFound();
             return View(property);
         }
@@ -80,8 +80,8 @@ namespace StayBnb.Controllers
             var guestId = _userManager.GetUserId(User)!;
             var nights = (model.CheckOutDate!.Value.Date - model.CheckInDate!.Value.Date).Days;
 
-            // Save the uploaded document under wwwroot/uploads/documents with a generated name
-            var folder = Path.Combine(_env.WebRootPath, "uploads", "documents");
+            // Save the uploaded document outside wwwroot (so it is not public) with a generated name
+            var folder = Path.Combine(_env.ContentRootPath, "PrivateUploads", "documents");
             Directory.CreateDirectory(folder);
             var storedName = Guid.NewGuid() + Path.GetExtension(model.Document!.FileName).ToLowerInvariant();
             await using (var stream = System.IO.File.Create(Path.Combine(folder, storedName)))
@@ -143,6 +143,45 @@ namespace StayBnb.Controllers
                 .OrderByDescending(b => b.CheckInDate)
                 .ToListAsync();
             return View(bookings);
+        }
+
+        // Adds the property to the logged-in user's wishlist, tells the owner and logs it
+        [HttpPost, ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> Wish(int id)
+        {
+            var property = await _context.HostProperties.FirstOrDefaultAsync(p => p.Id == id && p.IsActive);
+            if (property == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User)!;
+
+            // Already on the wishlist: nothing to add, notify or log
+            if (await _context.WishlistItems.AnyAsync(w => w.UserId == userId && w.PropertyId == id))
+                return RedirectToAction(nameof(Create), new { id });
+
+            _context.WishlistItems.Add(new WishlistItem { UserId = userId, PropertyId = id });
+
+            // The owner does not need a notification about their own wishlist
+            if (property.HostId != userId)
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = property.HostId,
+                    Title = "Your property was added to a wishlist",
+                    Type = NotificationType.Info
+                });
+            }
+
+            _context.ActivityLogs.Add(new ActivityLog
+            {
+                UserId = userId,
+                Action = "WishlistItemAdded",
+                ActivityType = ActivityType.Property
+            });
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Create), new { id });
         }
 
         // Property with everything the check-in page displays; null when missing or inactive

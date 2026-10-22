@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using StayBnb.Data;
 using StayBnb.Models;
 
 namespace StayBnb.Controllers
@@ -8,11 +10,13 @@ namespace StayBnb.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _db;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext db)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _db = db;
         }
 
         [HttpGet]
@@ -34,7 +38,9 @@ namespace StayBnb.Controllers
             }
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-            return await RedirectByRoleAsync(user!, model.ReturnUrl);
+            _db.LogActivity(user!.Id, "UserLoggedIn", ActivityType.Login);
+            await _db.SaveChangesAsync();
+            return await RedirectByRoleAsync(user, model.ReturnUrl);
         }
 
         [HttpGet]
@@ -67,12 +73,16 @@ namespace StayBnb.Controllers
             // Everyone starts as a Guest; hosts are promoted through the host application.
             await _userManager.AddToRoleAsync(user, Roles.Guest);
             await _signInManager.SignInAsync(user, isPersistent: false);
+            _db.LogActivity(user.Id, "UserRegistered", ActivityType.Registration);
+            await _db.SaveChangesAsync();
             return RedirectToAction("Index", "Home");
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            _db.LogActivity(User.FindFirstValue(ClaimTypes.NameIdentifier), "UserLoggedOut", ActivityType.Logout);
+            await _db.SaveChangesAsync();
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }

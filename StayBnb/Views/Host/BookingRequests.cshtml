@@ -1,0 +1,45 @@
+@model List<StayBnb.Models.Booking>
+@{
+    ViewData["Title"] = "Booking Requests";
+}
+
+<div class="page-head">
+    <div>
+        <h3>Pending requests</h3>
+        <p>@Model.Count awaiting your response</p>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty list-card" style="display:block">
+        <strong>You're all caught up</strong>
+        No pending booking requests.
+    </div>
+}
+@foreach (var b in Model)
+{
+    var guest = $"{b.Guest?.FirstName} {b.Guest?.LastName}".Trim();
+    var nights = (b.CheckOutDate - b.CheckInDate).Days;
+    <div class="list-card">
+        <div class="who">
+            <div class="avatar">@(string.IsNullOrEmpty(guest) ? "?" : guest.Substring(0, 1).ToUpper())</div>
+            <div>
+                <strong>@guest</strong>
+                <div class="muted">@b.Property?.Title</div>
+            </div>
+        </div>
+        <div class="meta">
+            <div><small>Check in</small>@b.CheckInDate.ToString("d MMM yyyy")</div>
+            <div><small>Check out</small>@b.CheckOutDate.ToString("d MMM yyyy")</div>
+            <div><small>Nights</small>@nights</div>
+            <div><small>Guests</small>@b.NumberOfGuests</div>
+            <div><small>Total</small><strong>R @b.TotalPrice.ToString("N2")</strong></div>
+        </div>
+        <form asp-action="RespondToBooking" method="post" class="actions">
+            <input type="hidden" name="id" value="@b.Id" />
+            <button class="accept" name="approve" value="true">Approve</button>
+            <button class="deny" name="approve" value="false">Decline</button>
+        </form>
+    </div>
+}

@@ -1,0 +1,87 @@
+@model List<StayBnb.Models.WishlistItem>
+@{
+    ViewData["Title"] = "Wishlist";
+}
+
+<style>
+    .wishlist
+    {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .wishlist th, .wishlist td
+    {
+        padding: 12px 14px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+    .wishlist th
+    {
+        color: #777;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+    .wishlist img
+    {
+        width: 110px;
+        height: 75px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .wishlist .unavailable
+    {
+        color: #999;
+    }
+</style>
+
+<h2>Wishlist</h2>
+@if (!Model.Any())
+{
+    <p>Your wishlist is empty.</p>
+}
+else
+{
+    <table class="wishlist">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Property</th>
+                <th>Location</th>
+                <th>Price per night</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var property = item.Property;
+                var image = property?.Images.FirstOrDefault()?.ImageUrl;
+                <tr>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(image))
+                        {
+                            <img src="@image" alt="@property?.Title" />
+                        }
+                    </td>
+                    <td>@property?.Title</td>
+                    <td>@property?.Address, @property?.City</td>
+                    <td>R @(property?.PricePerNight.ToString("N2"))</td>
+                    <td>
+                        @if (property?.IsActive == true)
+                        {
+                            <span>Available</span>
+                        }
+                        else
+                        {
+                            <span class="unavailable">Not available</span>
+                        }
+                    </td>
+                    <td><a asp-controller="Bookings" asp-action="Create" asp-route-id="@item.PropertyId">View</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

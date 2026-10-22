@@ -5,8 +5,13 @@
 }
 
 <style>
-    .property { display: flex; justify-content: center; }
-    .property .card {
+    .property
+    {
+        display: flex;
+        justify-content: center;
+    }
+    .property .card
+    {
         width: 100%;
         max-width: 520px;
         background: #fff;
@@ -14,21 +19,85 @@
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
         overflow: hidden;
     }
-    .property .card img { width: 100%; height: 300px; object-fit: cover; display: block; }
-    .property .body { padding: 2rem; }
-    .property h2 { font-size: 2rem; font-weight: 500; margin: 0 0 .3rem; }
-    .property .location { color: #666; margin: 0 0 1rem; }
-    .property .description { line-height: 1.5; margin: 0 0 1.2rem; }
-    .property .price { font-size: 1.3rem; margin-bottom: 1.2rem; }
-    .property .price small { color: #666; font-size: 1rem; }
-    .property h4 { margin: 1.2rem 0 .6rem; font-weight: 500; }
-    .property .amenities { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
-    .property .amenities li { background: #f5f5f5; border-radius: 999px; padding: .35rem .9rem; font-size: 14px; }
-    .property .fees { width: 100%; font-size: 15px; border-collapse: collapse; }
-    .property .fees td { padding: .25rem 0; }
-    .property .fees td:last-child { text-align: right; }
-    .property a.button {
+    .property .card img
+    {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
         display: block;
+    }
+    .property .body
+    {
+        padding: 2rem;
+    }
+    .property h2
+    {
+        font-size: 2rem;
+        font-weight: 500;
+        margin: 0 0 .3rem;
+    }
+    .property .location
+    {
+        color: #666;
+        margin: 0 0 1rem;
+    }
+    .property .description
+    {
+        line-height: 1.5;
+        margin: 0 0 1.2rem;
+    }
+    .property .price
+    {
+        font-size: 1.3rem;
+        margin-bottom: 1.2rem;
+    }
+    .property .price small
+    {
+        color: #666;
+        font-size: 1rem;
+    }
+    .property h4
+    {
+        margin: 1.2rem 0 .6rem;
+        font-weight: 500;
+    }
+    .property .amenities
+    {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+    .property .amenities li
+    {
+        background: #f5f5f5;
+        border-radius: 999px;
+        padding: .35rem .9rem;
+        font-size: 14px;
+    }
+    .property .fees
+    {
+        width: 100%;
+        font-size: 15px;
+        border-collapse: collapse;
+    }
+    .property .fees td
+    {
+        padding: .25rem 0;
+    }
+    .property .fees td:last-child
+    {
+        text-align: right;
+    }
+    .property a.button, .property button.button
+    {
+        display: block;
+        width: 100%;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
         height: 60px;
         line-height: 60px;
         text-align: center;
@@ -40,7 +109,17 @@
         border-radius: 6px;
         margin-top: 1.7rem;
     }
-    .property a.button:hover { text-decoration: none; opacity: .92; }
+    .property a.button:hover, .property button.button:hover
+    {
+        text-decoration: none;
+        opacity: .92;
+    }
+    .property a.button.disabled
+    {
+        background: #c9c9c9;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
 </style>
 
 <div class="property">
@@ -76,7 +155,17 @@
                 <tr><td>Service fee</td><td>@Model.ServiceFee.ToString("C")</td></tr>
             </table>
 
-            <a class="button" asp-controller="Bookings" asp-action="CheckIn" asp-route-id="@Model.Id">Book Now</a>
+            @if (Model.IsActive)
+            {
+                <a class="button" asp-controller="Bookings" asp-action="CheckIn" asp-route-id="@Model.Id">Book Now</a>
+            }
+            else
+            {
+                <a class="button disabled" aria-disabled="true" title="This property is not available for booking">Book Now</a>
+            }
+            <form asp-controller="Bookings" asp-action="Wish" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="button">Add to Wishlist</button>
+            </form>
         </div>
     </div>
 </div>

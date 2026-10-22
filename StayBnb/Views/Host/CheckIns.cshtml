@@ -1,0 +1,60 @@
+@using StayBnb.Models
+@model List<GuestCheckIn>
+@{
+    ViewData["Title"] = "Guest Check-Ins";
+    string Css(CheckInStatus s) => s switch
+    {
+        CheckInStatus.Verified => "ok",
+        CheckInStatus.Rejected => "bad",
+        CheckInStatus.Submitted => "info",
+        _ => ""
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h3>Check-in submissions</h3>
+        <p>@Model.Count(c => c.Status == CheckInStatus.Submitted) awaiting verification</p>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty list-card" style="display:block">
+        <strong>No check-ins yet</strong>
+        Guests appear here once they complete the check-in for a booking.
+    </div>
+}
+@foreach (var c in Model)
+{
+    var guest = $"{c.Booking?.Guest?.FirstName} {c.Booking?.Guest?.LastName}".Trim();
+    <div class="list-card">
+        <div class="who">
+            <div class="avatar">@(string.IsNullOrEmpty(guest) ? "?" : guest.Substring(0, 1).ToUpper())</div>
+            <div>
+                <strong>@guest</strong>
+                <div class="muted">@c.Booking?.Property?.Title</div>
+            </div>
+        </div>
+        <div class="meta">
+            <div><small>Stay</small>@c.Booking?.CheckInDate.ToString("d MMM") - @c.Booking?.CheckOutDate.ToString("d MMM yyyy")</div>
+            <div>
+                <small>Documents</small>
+                @if (!c.Documents.Any()) { <span class="muted">None uploaded</span> }
+                @foreach (var d in c.Documents)
+                {
+                    <a class="doc-chip" asp-action="Document" asp-route-id="@d.Id" target="_blank">@d.DocumentType</a>
+                }
+            </div>
+            <div><small>Status</small><span class="status @Css(c.Status)">@c.Status</span></div>
+        </div>
+        @if (c.Status == CheckInStatus.Submitted)
+        {
+            <form asp-action="ReviewCheckIn" method="post" class="actions">
+                <input type="hidden" name="id" value="@c.Id" />
+                <button class="accept" name="verify" value="true">Verify</button>
+                <button class="deny" name="verify" value="false">Reject</button>
+            </form>
+        }
+    </div>
+}

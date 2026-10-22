@@ -1,0 +1,40 @@
+@model List<StayBnb.Models.Message>
+@{
+    ViewData["Title"] = "Inbox";
+    var unreadIds = (HashSet<int>)ViewBag.UnreadIds;
+}
+
+<style>
+    .message
+    {
+        display: block;
+        padding: 14px 16px;
+        border-bottom: 1px solid #eee;
+    }
+    .message:hover
+    {
+        background: #fafafa;
+    }
+    .message.unread
+    {
+        font-weight: 600;
+    }
+    .message small
+    {
+        color: #777;
+        font-weight: normal;
+    }
+</style>
+
+<h2>Inbox</h2>
+@if (!Model.Any())
+{
+    <p>You have no messages.</p>
+}
+@foreach (var m in Model)
+{
+    <div class="message @(unreadIds.Contains(m.Id) ? "unread" : "")">
+        <div>@($"{m.Sender?.FirstName} {m.Sender?.LastName}".Trim()) <small>@m.Timestamp.ToString("yyyy-MM-dd HH:mm")</small></div>
+        <div>@(m.Content.Length > 100 ? m.Content.Substring(0, 100) + "..." : m.Content)</div>
+    </div>
+}

@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Compose";
+    var recipients = (List<ApplicationUser>)ViewBag.Recipients;
+    string? selected = ViewBag.Selected;
+    string? content = ViewBag.Content;
+}
+
+<style>
+    .compose
+    {
+        max-width: 640px;
+    }
+    .compose h2
+    {
+        margin-top: 0;
+    }
+    .compose label
+    {
+        display: block;
+        margin: 16px 0 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .compose select, .compose textarea
+    {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font: inherit;
+        background: #fff;
+    }
+    .compose select:focus, .compose textarea:focus
+    {
+        outline: none;
+        border-color: #ff385c;
+        box-shadow: 0 0 0 3px #ffe8ec;
+    }
+    .compose textarea
+    {
+        min-height: 180px;
+        resize: vertical;
+    }
+    .compose .error
+    {
+        display: block;
+        margin-top: 6px;
+        color: #c62828;
+        font-size: 0.85rem;
+    }
+    .compose .send
+    {
+        margin-top: 20px;
+        padding: 12px 28px;
+        border: none;
+        border-radius: 10px;
+        background: #ff385c;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .compose .send:hover
+    {
+        background: #e0314f;
+    }
+</style>
+
+<div class="compose">
+    <h2>New message</h2>
+
+    <form asp-controller="Messages" asp-action="Compose" method="post">
+        <label for="receiverId">To</label>
+        <select id="receiverId" name="receiverId">
+            <option value="">Select a person</option>
+            @foreach (var person in recipients)
+            {
+                <option value="@person.Id" selected="@(person.Id == selected)">@($"{person.FirstName} {person.LastName}".Trim())</option>
+            }
+        </select>
+        @if (ViewData.ModelState.TryGetValue("receiverId", out var receiverErrors))
+        {
+            foreach (var error in receiverErrors.Errors)
+            {
+                <span class="error">@error.ErrorMessage</span>
+            }
+        }
+
+        <label for="content">Message</label>
+        <textarea id="content" name="content" maxlength="4000" placeholder="Write your message...">@content</textarea>
+        @if (ViewData.ModelState.TryGetValue("content", out var contentErrors))
+        {
+            foreach (var error in contentErrors.Errors)
+            {
+                <span class="error">@error.ErrorMessage</span>
+            }
+        }
+
+        <button type="submit" class="send">Send message</button>
+    </form>
+</div>

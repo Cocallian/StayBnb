@@ -5,20 +5,12 @@ using StayBnb.Models;
 
 namespace StayBnb.Data
 {
-    /// <summary>
-    /// Runs on application startup. Applies migrations, then seeds:
-    /// roles, the SuperAdmin, an Admin, 3 Hosts, 10 Guests, amenities, 12 properties (with images and
-    /// check-in processes), host applications, bookings, payments, check-ins, reviews, wishlists,
-    /// messages, notifications and activity logs.
-    ///
-    /// Safe to run repeatedly - each section only inserts when its data is missing.
-    ///
+
     /// Seeded logins:
     ///   superadmin@staybnb.com / SuperAdmin@123
     ///   admin@staybnb.com      / Password@123
     ///   host1@staybnb.com .. host3@staybnb.com   / Password@123
     ///   guest1@staybnb.com .. guest10@staybnb.com / Password@123
-    /// </summary>  
     public static class RoleSeeder
     {
         private const string DefaultPassword = "Password@123";

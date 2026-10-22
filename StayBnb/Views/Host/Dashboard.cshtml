@@ -1,5 +1,74 @@
+@using StayBnb.Models
+@model HostDashboardViewModel
 @{
-    ViewData["Title"] = "Host Dashboard";
+    ViewData["Title"] = "Dashboard Overview";
+
+    // Colour class for a booking's status badge
+    string StatusClass(BookingStatus status) => status switch
+    {
+        BookingStatus.Approved or BookingStatus.Completed => "ok",
+        BookingStatus.Rejected or BookingStatus.Cancelled => "bad",
+        _ => ""
+    };
 }
 
-<h2>Host Dashboard</h2>
+<div class="cards">
+    <div class="card">
+        <div class="label">My Properties</div>
+        <div class="value">@Model.TotalProperties</div>
+        <div class="note">Listings</div>
+    </div>
+    <div class="card">
+        <div class="label">Pending Requests</div>
+        <div class="value warn">@Model.PendingRequests</div>
+        <div class="note"><a asp-action="BookingRequests">Review requests</a></div>
+    </div>
+    <div class="card">
+        <div class="label">Upcoming Bookings</div>
+        <div class="value">@Model.UpcomingBookings</div>
+        <div class="note">Approved stays</div>
+    </div>
+    <div class="card">
+        <div class="label">Earnings</div>
+        <div class="value">R @Model.Earnings.ToString("N0")</div>
+        <div class="note">Paid bookings</div>
+    </div>
+    <div class="card">
+        <div class="label">Average Rating</div>
+        <div class="value"><span class="stars">&#9733;</span> @Model.AverageRating.ToString("0.0")</div>
+        <div class="note">@Model.ReviewCount reviews</div>
+    </div>
+</div>
+
+<div class="page-head">
+    <h3>Recent Bookings</h3>
+    <a class="btn ghost" asp-action="BookingRequests">View requests</a>
+</div>
+
+@if (!Model.RecentBookings.Any())
+{
+    <div class="empty list-card" style="display:block">
+        <strong>No bookings yet</strong>
+        Bookings for your properties will show up here.
+    </div>
+}
+else
+{
+    <table>
+        <thead>
+            <tr><th>Guest</th><th>Property</th><th>Check In</th><th>Check Out</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var b in Model.RecentBookings)
+            {
+                <tr>
+                    <td>@($"{b.Guest?.FirstName} {b.Guest?.LastName}".Trim())</td>
+                    <td>@b.Property?.Title</td>
+                    <td>@b.CheckInDate.ToString("d MMM yyyy")</td>
+                    <td>@b.CheckOutDate.ToString("d MMM yyyy")</td>
+                    <td><span class="status @StatusClass(b.Status)">@b.Status</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

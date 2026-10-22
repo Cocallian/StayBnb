@@ -6,21 +6,45 @@
 }
 
 <style>
-    .apply { display: flex; justify-content: center; }
-    .apply .card {
+    .apply
+    {
+        display: flex;
+        justify-content: center;
+    }
+    .apply .card
+    {
         width: 100%;
         max-width: 560px;
         background: #fff;
         border-radius: 7px;
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
     }
-    .apply .body { padding: 2rem; }
-    .apply header { font-size: 2rem; font-weight: 500; text-align: center; margin-bottom: .5rem; }
-    .apply .intro { text-align: center; color: #666; margin: 0 0 1.5rem; }
-    .apply label { display: block; font-size: 14px; color: #444; margin-bottom: .3rem; }
-    .apply input:not([type=submit]):not([type=hidden]),
-    .apply select,
-    .apply textarea {
+    .apply .body
+    {
+        padding: 2rem;
+    }
+    .apply header
+    {
+        font-size: 2rem;
+        font-weight: 500;
+        text-align: center;
+        margin-bottom: .5rem;
+    }
+    .apply .intro
+    {
+        text-align: center;
+        color: #666;
+        margin: 0 0 1.5rem;
+    }
+    .apply label
+    {
+        display: block;
+        font-size: 14px;
+        color: #444;
+        margin-bottom: .3rem;
+    }
+    .apply input:not([type=submit]):not([type=hidden]), .apply select, .apply textarea
+    {
         width: 100%;
         padding: 0 15px;
         font-size: 17px;
@@ -31,14 +55,41 @@
         background: #fff;
         font-family: inherit;
     }
-    .apply input:not([type=submit]):not([type=hidden]) { height: 60px; }
-    .apply input[type=file] { padding: 15px; height: auto; }
-    .apply textarea { padding: 15px; height: 140px; resize: vertical; }
-    .apply select[multiple] { padding: 8px; height: 200px; }
-    .apply input:focus, .apply select:focus, .apply textarea:focus { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); }
-    .apply .row { display: flex; gap: 1rem; }
-    .apply .row > div { flex: 1; }
-    .apply input.button {
+    .apply input:not([type=submit]):not([type=hidden])
+    {
+        height: 60px;
+    }
+    .apply input[type=file]
+    {
+        padding: 15px;
+        height: auto;
+    }
+    .apply textarea
+    {
+        padding: 15px;
+        height: 140px;
+        resize: vertical;
+    }
+    .apply select[multiple]
+    {
+        padding: 8px;
+        height: 200px;
+    }
+    .apply input:focus, .apply select:focus, .apply textarea:focus
+    {
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+    }
+    .apply .row
+    {
+        display: flex;
+        gap: 1rem;
+    }
+    .apply .row > div
+    {
+        flex: 1;
+    }
+    .apply input.button
+    {
         height: 60px;
         width: 100%;
         border: none;
@@ -51,9 +102,22 @@
         margin-top: 1rem;
         cursor: pointer;
     }
-    .apply .error, .apply .field-validation-error { color: #c00; font-size: 14px; }
-    .apply .field-validation-error { display: block; margin: -1rem 0 1rem; }
-    .apply .note { font-size: 13px; color: #666; margin: -.8rem 0 1rem; }
+    .apply .error, .apply .field-validation-error
+    {
+        color: #c00;
+        font-size: 14px;
+    }
+    .apply .field-validation-error
+    {
+        display: block;
+        margin: -1rem 0 1rem;
+    }
+    .apply .note
+    {
+        font-size: 13px;
+        color: #666;
+        margin: -.8rem 0 1rem;
+    }
 </style>
 
 <div class="apply">

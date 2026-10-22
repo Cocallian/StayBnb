@@ -26,12 +26,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - StayBnb</title>
     <style>
-        body { margin: 0; font-family: system-ui, sans-serif; color: #222; }
-        a { color: inherit; text-decoration: none; }
-        main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
-
+        body
+        {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: #222;
+        }
+        a
+        {
+            color: inherit;
+            text-decoration: none;
+        }
+        main
+        {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
         /* Top bar: logo, search, links, user menu */
-        header {
+        header
+        {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -39,10 +53,15 @@
             padding: 12px 40px;
             box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
         }
-        header > a:first-child { color: #ff385c; font-weight: 700; font-size: 1.4rem; }
-
+        header > a:first-child
+        {
+            color: #ff385c;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
         /* Search pill */
-        form.search {
+        form.search
+        {
             display: flex;
             align-items: center;
             border: 1px solid #ddd;
@@ -50,16 +69,24 @@
             padding: 4px 6px 4px 16px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
-        form.search select, form.search input {
+        form.search select, form.search input
+        {
             border: none;
             outline: none;
             background: transparent;
             font: inherit;
             padding: 0 12px;
         }
-        form.search select { border-right: 1px solid #ddd; }
-        form.search input { width: 9rem; }
-        form.search button {
+        form.search select
+        {
+            border-right: 1px solid #ddd;
+        }
+        form.search input
+        {
+            width: 9rem;
+        }
+        form.search button
+        {
             width: 32px;
             height: 32px;
             border: none;
@@ -68,15 +95,30 @@
             color: #fff;
             cursor: pointer;
         }
-
         /* Links on the right */
-        nav { display: flex; align-items: center; gap: 8px; }
-        nav > a { padding: 8px 14px; border-radius: 999px; font-size: 0.9rem; }
-        nav > a:hover { background: #f5f5f5; }
-
+        nav
+        {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        nav > a
+        {
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+        }
+        nav > a:hover
+        {
+            background: #f5f5f5;
+        }
         /* User menu (opens and closes without JavaScript) */
-        details { position: relative; }
-        summary {
+        details
+        {
+            position: relative;
+        }
+        summary
+        {
             list-style: none;
             cursor: pointer;
             border: 1px solid #ddd;
@@ -84,9 +126,16 @@
             padding: 8px 16px;
             font-size: 0.9rem;
         }
-        summary::-webkit-details-marker { display: none; }
-        summary:hover { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); }
-        details div {
+        summary::-webkit-details-marker
+        {
+            display: none;
+        }
+        summary:hover
+        {
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        details div
+        {
             position: absolute;
             right: 0;
             top: 120%;
@@ -97,7 +146,8 @@
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
             z-index: 10;
         }
-        details div a, details div button {
+        details div a, details div button
+        {
             display: block;
             width: 100%;
             padding: 8px 16px;
@@ -107,7 +157,10 @@
             text-align: left;
             cursor: pointer;
         }
-        details div a:hover, details div button:hover { background: #f5f5f5; }
+        details div a:hover, details div button:hover
+        {
+            background: #f5f5f5;
+        }
     </style>
 </head>
 <body>
@@ -153,8 +206,11 @@
                 <div>
                     @if (user != null)
                     {
-                        <a asp-controller="Bookings" asp-action="Index">My Bookings</a>
-                        <a asp-controller="Wishlist" asp-action="Index">Wishlist</a>
+                        @if (!isAdmin)
+                        {
+                            <a asp-controller="Bookings" asp-action="Index">My Bookings</a>
+                            <a asp-controller="Wishlist" asp-action="Index">Wishlist</a>
+                        }
                         <a asp-controller="Messages" asp-action="Inbox">Messages</a>
                         <a asp-controller="Notifications" asp-action="Index">Notifications</a>
                         <form asp-controller="Account" asp-action="Logout" method="post">
