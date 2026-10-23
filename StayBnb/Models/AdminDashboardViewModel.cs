@@ -11,7 +11,6 @@ namespace StayBnb.Models
         public List<Payment> Payments { get; set; } = new();
         public List<ActivityLog> RecentActivity { get; set; } = new();
         public int TotalUsers => Users.Count;
-        // Same filter as the Host Requests table: pending, with an applicant, an image and a document
         public int PendingHostApplications => HostApplications.Count(a => a.Status == ApplicationStatus.Pending
             && a.ApplicationUser != null
             && !string.IsNullOrEmpty(a.ImageUrl));

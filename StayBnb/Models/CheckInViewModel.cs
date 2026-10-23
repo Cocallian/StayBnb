@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StayBnb.Models
 {
-    // Combines the Booking dates/guests with the GuestDocument upload, which no single entity holds
     public class CheckInViewModel
     {
         [Required]
@@ -26,7 +25,6 @@ namespace StayBnb.Models
         [Display(Name = "ID / Passport")]
         public IFormFile? Document { get; set; }
 
-        // Display only, reloaded by the controller and never posted
         public HostProperty? Property { get; set; }
     }
 }

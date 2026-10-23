@@ -21,6 +21,7 @@ namespace StayBnb.Controllers
             _userManager = userManager;
         }
 
+        // Collects users, hosts, applications, properties, bookings, payments and recent activity to show the admin overview page.
         public async Task<IActionResult> Dashboard()
         {
             var model = new AdminDashboardViewModel
@@ -40,7 +41,7 @@ namespace StayBnb.Controllers
             return View(model);
         }
 
-        // Pending applications that have an applicant and an image
+        // Lists pending host applications that have an applicant and an image so the admin can review them.
         public async Task<IActionResult> HostRequests()
         {
             var applications = await _db.HostApplications
@@ -54,7 +55,7 @@ namespace StayBnb.Controllers
             return View(applications);
         }
 
-        // Turns a pending application into a live property and swaps the applicant's Guest role for Host
+        // Turns a pending host application into a live property and changes the applicant from guest to host.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id)
         {
@@ -85,7 +86,6 @@ namespace StayBnb.Controllers
             application.Property = property;
             await _db.SaveChangesAsync();
 
-            // The Guest role is swapped for Host
             if (await _userManager.IsInRoleAsync(user, Roles.Guest))
                 await _userManager.RemoveFromRoleAsync(user, Roles.Guest);
             if (!await _userManager.IsInRoleAsync(user, Roles.Host))
@@ -103,6 +103,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(HostRequests));
         }
 
+        // Marks a pending host application as rejected and sends the applicant a notification about it.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Deny(int id)
         {
@@ -124,6 +125,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(HostRequests));
         }
 
+        // Lists every booking on the site, newest check-in first, with the guest and host details.
         public async Task<IActionResult> Bookings()
         {
             var bookings = await _db.Bookings
@@ -134,6 +136,7 @@ namespace StayBnb.Controllers
             return View(bookings);
         }
 
+        // Lists every property on the site in order of title, with its host, images and reviews.
         public async Task<IActionResult> Properties()
         {
             var properties = await _db.HostProperties
@@ -145,6 +148,7 @@ namespace StayBnb.Controllers
             return View(properties);
         }
 
+        // Lists every message sent between users, newest first, so the admin can look at them.
         public async Task<IActionResult> Messages()
         {
             var messages = await _db.Messages
@@ -155,6 +159,7 @@ namespace StayBnb.Controllers
             return View(messages);
         }
 
+        // Lists every notification sent to any user, newest first, for the admin to look at.
         public async Task<IActionResult> Notifications()
         {
             var notifications = await _db.Notifications
@@ -164,6 +169,7 @@ namespace StayBnb.Controllers
             return View(notifications);
         }
 
+        // Lists all recorded activity on the site, such as logins and bookings, with the newest first.
         public async Task<IActionResult> ActivityLogs()
         {
             var logs = await _db.ActivityLogs
@@ -173,7 +179,7 @@ namespace StayBnb.Controllers
             return View(logs);
         }
 
-        // Only the SuperAdmin can see and manage users
+        // Lists all users with their properties, bookings and reviews; only the super admin can open this.
         [Authorize(Roles = Roles.SuperAdmin)]
         public async Task<IActionResult> Users()
         {
@@ -185,7 +191,7 @@ namespace StayBnb.Controllers
             return View(users);
         }
 
-        // Replaces all of a user's roles with the chosen one; hosts are told they were promoted
+        // Replaces a user's roles with the chosen role and tells them if they became a host.
         [HttpPost, ValidateAntiForgeryToken]
         [Authorize(Roles = Roles.SuperAdmin)]
         public async Task<IActionResult> Promote(string id, string role)

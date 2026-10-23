@@ -16,7 +16,7 @@ namespace StayBnb.Controllers
             _context = context;
         }
 
-        // The logged-in user's own notifications, newest first
+        // Shows the logged-in user's own notifications, with the newest notification first in the list.
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -27,6 +27,7 @@ namespace StayBnb.Controllers
             return View(notifications);
         }
 
+        // Marks one of the user's notifications as read, and does nothing if it belongs to someone else.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkRead(int id)
         {
@@ -39,6 +40,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Marks every unread notification belonging to the logged-in user as read in one database update.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAllRead()
         {

@@ -23,6 +23,7 @@ namespace StayBnb.Controllers
             _env = env;
         }
 
+        // Shows a property's details page with its pictures, amenities and reviews so a guest can look at it.
         public async Task<IActionResult> Create(int id)
         {
             var property = await _context.HostProperties
@@ -34,6 +35,7 @@ namespace StayBnb.Controllers
             return View(property);
         }
 
+        // Shows the booking and check-in form for a property, but only to logged-in guests.
         [Authorize(Roles = Roles.Guest)]
         public async Task<IActionResult> CheckIn(int id)
         {
@@ -43,6 +45,7 @@ namespace StayBnb.Controllers
             return View(new CheckInViewModel { PropertyId = id, Property = property });
         }
 
+        // Checks dates and the uploaded document, saves the file privately, then creates a pending booking request for the host.
         [HttpPost, ValidateAntiForgeryToken]
         [Authorize(Roles = Roles.Guest)]
         public async Task<IActionResult> CheckIn(CheckInViewModel model)
@@ -80,7 +83,6 @@ namespace StayBnb.Controllers
             var guestId = _userManager.GetUserId(User)!;
             var nights = (model.CheckOutDate!.Value.Date - model.CheckInDate!.Value.Date).Days;
 
-            // Save the uploaded document outside wwwroot (so it is not public) with a generated name
             var folder = Path.Combine(_env.ContentRootPath, "PrivateUploads", "documents");
             Directory.CreateDirectory(folder);
             var storedName = Guid.NewGuid() + Path.GetExtension(model.Document!.FileName).ToLowerInvariant();
@@ -133,6 +135,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Shows the logged-in guest's own bookings, starting with the ones that have the latest check-in date.
         [Authorize(Roles = Roles.Guest)]
         public async Task<IActionResult> Index()
         {
@@ -145,7 +148,7 @@ namespace StayBnb.Controllers
             return View(bookings);
         }
 
-        // Adds the property to the logged-in user's wishlist, tells the owner and logs it
+        // Adds a property to the user's wishlist, tells the owner about it and writes it to the log.
         [HttpPost, ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Wish(int id)
@@ -155,13 +158,11 @@ namespace StayBnb.Controllers
 
             var userId = _userManager.GetUserId(User)!;
 
-            // Already on the wishlist: nothing to add, notify or log
             if (await _context.WishlistItems.AnyAsync(w => w.UserId == userId && w.PropertyId == id))
                 return RedirectToAction(nameof(Create), new { id });
 
             _context.WishlistItems.Add(new WishlistItem { UserId = userId, PropertyId = id });
 
-            // The owner does not need a notification about their own wishlist
             if (property.HostId != userId)
             {
                 _context.Notifications.Add(new Notification
@@ -184,7 +185,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(Create), new { id });
         }
 
-        // Property with everything the check-in page displays; null when missing or inactive
+        // Loads an active property with its images and amenities, and creates its check-in process if it has none.
         private async Task<HostProperty?> LoadPropertyAsync(int id)
         {
             var property = await _context.HostProperties
@@ -195,7 +196,6 @@ namespace StayBnb.Controllers
 
             if (property == null) return null;
 
-            // Every property needs a check-in process for the guest check-in to attach to
             if (property.CheckInProcess == null)
             {
                 property.CheckInProcess = new CheckInProcess { Title = $"Check-in for {property.Title}" };

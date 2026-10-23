@@ -27,6 +27,7 @@ namespace StayBnb.Controllers
 
         private IQueryable<Booking> MyBookings => _db.Bookings.Where(b => b.Property!.HostId == HostId);
 
+        // Works out the host's totals, earnings, average rating and recent bookings for the dashboard page.
         public async Task<IActionResult> Dashboard()
         {
             var bookings = await MyBookings.Include(b => b.Payment).ToListAsync();
@@ -47,6 +48,7 @@ namespace StayBnb.Controllers
             return View(model);
         }
 
+        // Lists the logged-in host's own properties in order of title, with their images and reviews.
         public async Task<IActionResult> Properties()
         {
             var properties = await MyProperties
@@ -55,12 +57,14 @@ namespace StayBnb.Controllers
             return View(properties);
         }
 
+        // Shows an empty form for adding a new property, with the list of amenities to pick from.
         public async Task<IActionResult> AddProperty()
         {
             await LoadAmenitiesAsync();
             return View(new HostProperty { IsActive = true });
         }
 
+        // Checks the form, links the chosen amenities and image, and saves a new property for this host.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProperty(HostProperty model, string? imageUrl, int[]? amenityIds)
         {
@@ -84,6 +88,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(Properties));
         }
 
+        // Finds one of the host's own properties and shows it in the edit form.
         public async Task<IActionResult> EditProperty(int id)
         {
             var property = await MyProperties.Include(p => p.Images).Include(p => p.Amenities).FirstOrDefaultAsync(p => p.Id == id);
@@ -92,6 +97,7 @@ namespace StayBnb.Controllers
             return View(property);
         }
 
+        // Saves the edited property details, and tells people who wishlisted it when it becomes available to book.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProperty(int id, HostProperty model, string? imageUrl, int[]? amenityIds)
         {
@@ -126,7 +132,6 @@ namespace StayBnb.Controllers
                 else image.ImageUrl = imageUrl.Trim();
             }
 
-            // Tell everyone who wishlisted the property that it can be booked now
             if (becameActive)
             {
                 var title = $"{property.Title} is now available to book";
@@ -149,6 +154,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(Properties));
         }
 
+        // Lists the pending booking requests for the host's properties, with the earliest check-in date first.
         public async Task<IActionResult> BookingRequests()
         {
             var bookings = await MyBookings
@@ -158,6 +164,7 @@ namespace StayBnb.Controllers
             return View(bookings);
         }
 
+        // Approves or declines a pending booking, creates the payment if approved and notifies the guest.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> RespondToBooking(int id, bool approve)
         {
@@ -167,7 +174,6 @@ namespace StayBnb.Controllers
 
             booking.Status = approve ? BookingStatus.Approved : BookingStatus.Rejected;
 
-            // Approving a booking creates the payment the guest owes; it is marked paid at check-in
             if (approve && booking.Payment == null)
                 booking.Payment = new Payment { Amount = booking.TotalPrice, Status = PaymentStatus.Pending };
 
@@ -182,6 +188,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(BookingRequests));
         }
 
+        // Lists the guest check-ins and their documents for the host's properties, newest first.
         public async Task<IActionResult> CheckIns()
         {
             var checkIns = await _db.GuestCheckIns
@@ -193,6 +200,7 @@ namespace StayBnb.Controllers
             return View(checkIns);
         }
 
+        // Verifies or rejects a guest check-in, marks the booking checked in and the payment paid.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ReviewCheckIn(int id, bool verify)
         {
@@ -204,11 +212,9 @@ namespace StayBnb.Controllers
 
             checkIn.Status = verify ? CheckInStatus.Verified : CheckInStatus.Rejected;
 
-            // A verified check-in on an approved booking means the guest has checked in
             if (verify && checkIn.Booking!.Status == BookingStatus.Approved)
                 checkIn.Booking.Status = BookingStatus.CheckedIn;
 
-            // The guest has arrived, so the payment is now settled
             if (verify && checkIn.Booking!.Payment?.Status == PaymentStatus.Pending)
                 checkIn.Booking.Payment.Status = PaymentStatus.Paid;
 
@@ -223,7 +229,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(CheckIns));
         }
 
-        // Lets a host open a document uploaded by a guest for one of the host's own properties
+        // Lets a host open a guest's uploaded document, but only for the host's own properties.
         public async Task<IActionResult> Document(int id)
         {
             var document = await _db.GuestDocuments
@@ -245,6 +251,7 @@ namespace StayBnb.Controllers
             return PhysicalFile(path, contentType);
         }
 
+        // Lists the host's bookings that have a payment, newest payment first, for the earnings page.
         public async Task<IActionResult> Earnings()
         {
             var bookings = await MyBookings
@@ -254,6 +261,7 @@ namespace StayBnb.Controllers
             return View(bookings);
         }
 
+        // Lists the reviews written about the host's properties, with the newest review shown first.
         public async Task<IActionResult> Reviews()
         {
             var reviews = await _db.Reviews
@@ -263,6 +271,7 @@ namespace StayBnb.Controllers
             return View(reviews);
         }
 
+        // Loads all amenities and the chosen ones into the ViewBag so the form can show its checkboxes.
         private async Task LoadAmenitiesAsync(IEnumerable<int>? selected = null)
         {
             ViewBag.Amenities = await _db.Amenities.OrderBy(a => a.Name).ToListAsync();

@@ -19,12 +19,14 @@ namespace StayBnb.Controllers
             _db = db;
         }
 
+        // Shows the login page and remembers where the user wanted to go after signing in.
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
             return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
+        // Checks the email and password, logs the sign in, then sends the user to the right page.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -43,12 +45,14 @@ namespace StayBnb.Controllers
             return await RedirectByRoleAsync(user, model.ReturnUrl);
         }
 
+        // Shows an empty registration page where a new user can create an account.
         [HttpGet]
         public IActionResult Register()
         {
             return View(new RegisterViewModel());
         }
 
+        // Creates a new guest account from the form, signs them in and records it in the log.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -70,7 +74,6 @@ namespace StayBnb.Controllers
                 return View(model);
             }
 
-            // Everyone starts as a Guest; hosts are promoted through the host application.
             await _userManager.AddToRoleAsync(user, Roles.Guest);
             await _signInManager.SignInAsync(user, isPersistent: false);
             _db.LogActivity(user.Id, "UserRegistered", ActivityType.Registration);
@@ -78,6 +81,7 @@ namespace StayBnb.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        // Records that the user left, signs them out and sends them back to the home page.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
@@ -87,12 +91,13 @@ namespace StayBnb.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        // Shows a page telling the user they are not allowed to open the page they asked for.
         public IActionResult AccessDenied()
         {
             return View();
         }
 
-        // Sends each role to its own landing page (unless the user was heading somewhere specific).
+        // Sends admins, hosts and guests to their own start page, or back to the page they wanted.
         private async Task<IActionResult> RedirectByRoleAsync(ApplicationUser user, string? returnUrl)
         {
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))

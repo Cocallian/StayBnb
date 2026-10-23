@@ -18,6 +18,7 @@ namespace StayBnb.Controllers
             _context = context;
         }
 
+        // Shows the properties the logged-in user has saved to their wishlist, newest saved first.
         [Authorize]
         public async Task<IActionResult> Index()
         {

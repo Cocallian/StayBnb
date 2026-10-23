@@ -23,6 +23,7 @@ namespace StayBnb.Data
         public DbSet<GuestCheckIn> GuestCheckIns => Set<GuestCheckIn>();
         public DbSet<GuestDocument> GuestDocuments => Set<GuestDocument>();
 
+        // Sets up the table relationships, keys and rules for every model when the database model is built.
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);

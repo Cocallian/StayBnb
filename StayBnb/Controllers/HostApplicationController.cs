@@ -21,7 +21,7 @@ namespace StayBnb.Controllers
             _env = env;
         }
 
-        // Not logged in -> login, no application yet -> apply, otherwise show the status.
+        // Shows the user's latest host application and its status, or sends them to apply if none exists.
         public async Task<IActionResult> Status()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -38,6 +38,7 @@ namespace StayBnb.Controllers
             return View(application);
         }
 
+        // Shows the host application form, unless the user has already applied, then it shows their status.
         [Authorize]
         public async Task<IActionResult> Apply()
         {
@@ -49,7 +50,7 @@ namespace StayBnb.Controllers
             return View(new HostApplication());
         }
 
-        // Binds only the fields the applicant fills in; the user, status and date are set here
+        // Checks the form, image and PDF document, saves the files and stores a new pending host application.
         [HttpPost, ValidateAntiForgeryToken, Authorize]
         public async Task<IActionResult> Apply(
             [Bind(nameof(HostApplication.Title), nameof(HostApplication.Description), nameof(HostApplication.PricePerNight),
@@ -63,7 +64,6 @@ namespace StayBnb.Controllers
             if (await _context.HostApplications.AnyAsync(a => a.ApplicationUserId == userId))
                 return RedirectToAction(nameof(Status));
 
-            // Set by the server, not posted
             ModelState.Remove(nameof(HostApplication.ApplicationUserId));
 
             if (image == null || image.Length == 0)
@@ -118,6 +118,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(Status));
         }
 
+        // Loads all amenities and the chosen ones into the ViewBag so the form can show its checkboxes.
         private async Task LoadAmenitiesAsync(IEnumerable<int>? selected = null)
         {
             ViewBag.Amenities = await _context.Amenities.OrderBy(a => a.Name).ToListAsync();

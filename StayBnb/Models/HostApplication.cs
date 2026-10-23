@@ -11,7 +11,6 @@ namespace StayBnb.Models
         public string ApplicationUserId { get; set; } = string.Empty;
         public ApplicationUser? ApplicationUser { get; set; }
 
-        // Set when an admin promotes the application to an actual property
         public int? PropertyId { get; set; }
         public HostProperty? Property { get; set; }
 
@@ -21,7 +20,6 @@ namespace StayBnb.Models
         [DataType(DataType.DateTime)]
         public DateTime AppliedAt { get; set; } = DateTime.UtcNow;
 
-        // Property details submitted by the applicant
         [Required, StringLength(100)]
         public string Title { get; set; } = string.Empty;
 
@@ -47,7 +45,6 @@ namespace StayBnb.Models
         [StringLength(500), Display(Name = "Image URL")]
         public string ImageUrl { get; set; } = string.Empty;
 
-        // Supporting document (PDF) uploaded with the application
         [StringLength(500), Display(Name = "Document URL")]
         public string DocumentUrl { get; set; } = string.Empty;
 

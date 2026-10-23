@@ -16,6 +16,7 @@ namespace StayBnb.Controllers
         {
             _context = context;
         }
+        // Shows messages sent to the user, newest first, and marks them all as read.
         public async Task<IActionResult> Inbox()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -25,7 +26,6 @@ namespace StayBnb.Controllers
                 .OrderByDescending(m => m.Timestamp)
                 .ToListAsync();
 
-            // Opening the inbox marks everything as read; the view still highlights what was new
             var unread = messages.Where(m => !m.IsRead).ToList();
             ViewBag.UnreadIds = unread.Select(m => m.Id).ToHashSet();
             if (unread.Count > 0)
@@ -37,12 +37,14 @@ namespace StayBnb.Controllers
             return View(messages);
         }
 
+        // Shows the new message form with a list of people the user can write to.
         public async Task<IActionResult> Compose()
         {
             await LoadRecipientsAsync();
             return View();
         }
 
+        // Checks the receiver and text, then saves the message with a notification and log entry.
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Compose(string receiverId, string content)
         {
@@ -71,7 +73,7 @@ namespace StayBnb.Controllers
             return RedirectToAction(nameof(History));
         }
 
-        // Everyone except the logged-in user can receive a message
+        // Loads every user except the current one into the ViewBag so they can be picked as the receiver.
         private async Task LoadRecipientsAsync(string? selected = null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -82,7 +84,7 @@ namespace StayBnb.Controllers
             ViewBag.Selected = selected;
         }
 
-        // Every message the logged-in user has sent or received, oldest first (the view groups them by the other person)
+        // Shows every message the user has sent or received, oldest first, so conversations can be read.
         public async Task<IActionResult> History()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

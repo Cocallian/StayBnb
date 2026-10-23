@@ -17,6 +17,7 @@ namespace StayBnb.Controllers
             _context = context;
         }
 
+        // Shows active properties on the home page, filtered by city, maximum price or search words if given.
         public async Task<IActionResult> Index(string? city, decimal? maxPrice, string? q)
         {
             var query = _context.HostProperties.Where(p => p.IsActive);
@@ -37,6 +38,7 @@ namespace StayBnb.Controllers
             return View(properties);
         }
 
+        // Shows the error page with a request id that can be used to find the problem.
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

@@ -6,16 +6,12 @@ using StayBnb.Models;
 namespace StayBnb.Data
 {
 
-    /// Seeded logins:
-    ///   superadmin@staybnb.com / SuperAdmin@123
-    ///   admin@staybnb.com      / Password@123
-    ///   host1@staybnb.com .. host3@staybnb.com   / Password@123
-    ///   guest1@staybnb.com .. guest10@staybnb.com / Password@123
     public static class RoleSeeder
     {
         private const string DefaultPassword = "Password@123";
         private const string SuperAdminPassword = "SuperAdmin@123";
 
+        // Runs the migrations and then fills the database with roles, users and sample data when needed.
         public static async Task SeedAsync(IServiceProvider services)
         {
             var db = services.GetRequiredService<ApplicationDbContext>();
@@ -27,7 +23,6 @@ namespace StayBnb.Data
             await SeedRolesAsync(roleManager);
             await SeedAmenitiesAsync(db);
 
-            // Users
             await EnsureUserAsync(userManager, "superadmin@staybnb.com", "Super", "Admin", Roles.SuperAdmin, SuperAdminPassword);
             await EnsureUserAsync(userManager, "admin@staybnb.com", "Lunga", "Aphane", Roles.Admin);
 
@@ -57,8 +52,8 @@ namespace StayBnb.Data
             await SeedActivityLogsAsync(db, hosts, guests);
         }
 
-        // ---------------------------------------------------------------- roles & users
 
+        // Creates the SuperAdmin, Admin, Host and Guest roles if they do not exist yet.
         private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         {
             foreach (var role in new[] { Roles.SuperAdmin, Roles.Admin, Roles.Host, Roles.Guest })
@@ -68,6 +63,7 @@ namespace StayBnb.Data
             }
         }
 
+        // Finds a user by email or creates them with a password and role, then returns the user.
         private static async Task<ApplicationUser> EnsureUserAsync(
             UserManager<ApplicationUser> userManager, string email, string first, string last, string role, string password = DefaultPassword)
         {
@@ -92,8 +88,8 @@ namespace StayBnb.Data
             return user;
         }
 
-        // ---------------------------------------------------------------- amenities
 
+        // Adds the list of sample amenities, such as wifi and parking, if none exist yet.
         private static async Task SeedAmenitiesAsync(ApplicationDbContext db)
         {
             if (await db.Amenities.AnyAsync()) return;
@@ -114,10 +110,10 @@ namespace StayBnb.Data
             await db.SaveChangesAsync();
         }
 
-        // ---------------------------------------------------------------- properties
 
         private record PropertySeed(string Title, string City, string Address, decimal Price, decimal Cleaning, decimal Service, string Description);
 
+        // Creates sample properties with images and amenities, plus pending host applications, notifications and approvals.
         private static async Task<List<HostProperty>> SeedPropertiesAsync(
             ApplicationDbContext db, List<ApplicationUser> hosts, List<ApplicationUser> guests, List<Amenity> amenities)
         {
@@ -155,7 +151,6 @@ namespace StayBnb.Data
                     ServiceFee = s.Service,
                     HostId = host.Id,
                     IsActive = true,
-                    // Each property gets 6 amenities, rotating through the list.
                     Amenities = Enumerable.Range(0, 6).Select(n => amenities[(i + n * 2) % amenities.Count]).Distinct().ToList(),
                     Images = Enumerable.Range(1, 4)
                         .Select(n => new PropertyImage { ImageUrl = $"https://picsum.photos/seed/{key}-{n}/900/600" })
@@ -175,7 +170,6 @@ namespace StayBnb.Data
                 properties.Add(property);
             }
 
-            // One extra property still awaiting Admin review (submitted by a Guest who applied to become a Host).
             var pendingApplicant = guests[7];
             var pendingProperty = new HostProperty
             {
@@ -194,7 +188,6 @@ namespace StayBnb.Data
 
             await db.SaveChangesAsync();
 
-            // Host applications: every live property was approved; the lodge is pending review.
             foreach (var p in properties)
             {
                 db.HostApplications.Add(new HostApplication
@@ -213,7 +206,6 @@ namespace StayBnb.Data
                 AppliedAt = DateTime.UtcNow.AddDays(-1)
             });
 
-            // Two more pending applications with the full form details (image and document), not yet turned into properties.
             db.HostApplications.Add(new HostApplication
             {
                 ApplicationUserId = guests[8].Id,
@@ -247,7 +239,6 @@ namespace StayBnb.Data
                 Amenities = amenities.Skip(2).Take(4).ToList()
             });
 
-            // Notifications that go with the applications.
             foreach (var host in hosts)
             {
                 db.Notifications.Add(new Notification
@@ -271,13 +262,12 @@ namespace StayBnb.Data
             return properties;
         }
 
-        // ---------------------------------------------------------------- bookings, payments, check-ins
 
+        // Creates sample bookings with payments, check-ins, notifications and activity logs for different booking stages.
         private static async Task<List<Booking>> SeedBookingsAsync(ApplicationDbContext db, List<HostProperty> properties, List<ApplicationUser> guests)
         {
             var today = DateTime.Today;
 
-            // (guest index, property index, start offset in days, nights, status, check-in status or null)
             var plan = new (int Guest, int Prop, int Start, int Nights, BookingStatus Status, CheckInStatus? CheckIn)[]
             {
                 (0, 0, -30, 3, BookingStatus.Completed, CheckInStatus.Verified),
@@ -345,7 +335,6 @@ namespace StayBnb.Data
             }
             await db.SaveChangesAsync();
 
-            // Notifications and activity log entries for the booking lifecycle.
             foreach (var b in bookings)
             {
                 var property = properties.First(x => x.Id == b.PropertyId);
@@ -412,8 +401,8 @@ namespace StayBnb.Data
             return bookings;
         }
 
-        // ---------------------------------------------------------------- reviews, wishlists
 
+        // Adds sample reviews written by guests for their finished bookings.
         private static async Task SeedReviewsAsync(ApplicationDbContext db, List<Booking> bookings)
         {
             var comments = new[]
@@ -441,19 +430,19 @@ namespace StayBnb.Data
             await db.SaveChangesAsync();
         }
 
+        // Adds sample wishlist items so each guest has saved a few properties.
         private static async Task SeedWishlistsAsync(ApplicationDbContext db, List<HostProperty> properties, List<ApplicationUser> guests)
         {
             for (var g = 0; g < guests.Count; g++)
             {
-                // Each guest saves two properties.
                 db.WishlistItems.Add(new WishlistItem { UserId = guests[g].Id, PropertyId = properties[g % properties.Count].Id });
                 db.WishlistItems.Add(new WishlistItem { UserId = guests[g].Id, PropertyId = properties[(g + 5) % properties.Count].Id });
             }
             await db.SaveChangesAsync();
         }
 
-        // ---------------------------------------------------------------- messages, logs
 
+        // Adds sample messages between users together with the notifications that go with them.
         private static async Task SeedCommunicationAsync(ApplicationDbContext db, List<ApplicationUser> hosts, List<ApplicationUser> guests, List<Booking> bookings)
         {
             var now = DateTime.UtcNow;
@@ -468,7 +457,6 @@ namespace StayBnb.Data
             Conversation(guests[4], hosts[1], "Is there a braai and is firewood provided?", "Hi Thandi, there is a braai on the patio and we provide the first bag of wood.", true);
             Conversation(guests[7], hosts[2], "Do you allow small dogs at the property?", "Hi Sipho, small dogs are welcome. We just ask that they stay off the beds.", false);
 
-            // A message from the Admin to a guest, plus the matching notifications.
             var admin = await db.Users.FirstAsync(u => u.Email == "admin@staybnb.com");
             db.Messages.Add(new Message
             {
@@ -485,6 +473,7 @@ namespace StayBnb.Data
             await db.SaveChangesAsync();
         }
 
+        // Adds sample activity log entries so the admin pages have something to show.
         private static async Task SeedActivityLogsAsync(ApplicationDbContext db, List<ApplicationUser> hosts, List<ApplicationUser> guests)
         {
             var admin = await db.Users.FirstAsync(u => u.Email == "admin@staybnb.com");
